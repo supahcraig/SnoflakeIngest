@@ -114,7 +114,7 @@ cat data.json.gz | zcat | python py_copy_into.py 10000
 
 ## File upload/copy using Snowpipe
 
-
+This is similar to the regular file upload/copy, except that it uploads the file to a Snowflake stage, and then the stage will load that data into the table behind the scenes, asynchronously.  It can take a minute or two for the data to be visible in your table.
 
 ### Database setup
 
@@ -125,6 +125,14 @@ CREATE OR REPLACE TABLE LIFT_TICKETS_PY_SNOWPIPE (TXID varchar(255), RFID varcha
 CREATE PIPE LIFT_TICKETS_PIPE AS COPY INTO LIFT_TICKETS_PY_SNOWPIPE
 FILE_FORMAT=(TYPE='PARQUET') 
 MATCH_BY_COLUMN_NAME=CASE_INSENSITIVE;
+```
+
+### Python usage
+
+`python ./data_generator.py 1 | python py_snowpipe.py 1`
+
+```bash
+cat data.json.gz | zcat | python py_snowpipe.py 10000
 ```
 
 
