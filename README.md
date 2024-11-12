@@ -114,7 +114,9 @@ cat data.json.gz | zcat | python py_copy_into.py 10000
 
 ## File upload/copy using Snowpipe
 
-This is similar to the regular file upload/copy, except that it uploads the file to a Snowflake stage, and then the stage will load that data into the table behind the scenes, asynchronously.  It can take a minute or two for the data to be visible in your table.
+This is similar to the regular file upload/copy, except that it uploads the file to a Snowflake stage, and then the stage will load that data into the table behind the scenes, asynchronously.  The files are loaded into an implicit stage (i.e. `@%table_name`) where they will sit until the Ingest Manager runs the `ingest_files` method.  This specific python will call `ingest_files` each time a file is uploaded to the stage, but it's also possible to process all the files in the stage after the fact. 
+
+_NOTE:_ It can take a minute or two for the data to be visible in your table.  
 
 ### Database setup
 
