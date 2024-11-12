@@ -62,11 +62,6 @@ def save_to_snowflake(snow, batch, temp_dir, ingest_manager):
         ]
     )
 
-    #file_name = f"{str(uuid.uuid1())}.parquet"
-    #out_path = f"{temp_dir.name}/{file_name}"
-    #pq.write_table(arrow_table, out_path, use_dictionary=False, compression='SNAPPY')
-
-
     file_name = f'{str(uuid.uuid1())}.parquet'
     out_path = f'{temp_dir.name}/{file_name}'
 
@@ -81,7 +76,6 @@ def save_to_snowflake(snow, batch, temp_dir, ingest_manager):
 
 
 if __name__ == '__main__':
-    logging.debug('starting snowpipe...')
     args = sys.argv[1:]
     batch_size = int(args[0])
 
@@ -99,7 +93,6 @@ if __name__ == '__main__':
                                          private_key=private_key)
 
     for message in sys.stdin:
-        logging.debug('processing a message')
         if message != '\n':
             record = json.loads(message)
 
@@ -120,16 +113,18 @@ if __name__ == '__main__':
             )
 
             if len(batch) == batch_size:
+                logging.debug(f'batch size {batch_size} reached.')
                 save_to_snowflake(snow, batch, temp_dir, ingest_manager)
                 batch = []
-            else:
-                break
 
-        if len(batch) > 0:
-            save_to_snowflake(snow, batch, temp_dir, ingest_manager)
+        else:
+            logging.debug(f'batch size {len(batch)} NOT reached.')
+            break
 
-        temp_dir.cleanup()
-        snow.close()
-        logging.info('ingest complete')
-else:
-    logging.info('not in main')
+    if len(batch) > 0:
+        logging.debug(f'batch size {batch_size}, sending final batch.')
+        save_to_snowflake(snow, batch, temp_dir, ingest_manager)
+
+    temp_dir.cleanup()
+    snow.close()
+    logging.info('ingest complete')
