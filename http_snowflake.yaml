@@ -1,0 +1,36 @@
+input:
+  http_server:
+    address: ":8888"
+    path: /snow
+    allowed_verbs: [ GET, POST ]
+
+buffer:
+  memory:
+    # Max inflight data before applying backpressure
+    limit: 524288000 # 50MiB
+    # Batching policy, influences how large the generated files sent to Snowflake are
+    batch_policy:
+      enabled: true
+      count: 100
+      byte_size: 33554432 # 32MiB
+      period: "5s"
+
+output:
+  snowflake_streaming:
+    account: "${SNOWFLAKE_ACCOUNT}"
+    user: "INGEST"
+    role: "INGEST"
+    database: "INGEST"
+    schema: "INGEST"
+    table: "lift_tickets_py_rpcn"
+    private_key_file: "./rsa_key.p8"
+    max_in_flight: 16
+    mapping: |
+      root = this
+      root.expiration_time = this.expiration_time.ts_strptime("%Y-%m-%d")
+
+logger:
+  level: DEBUG
+  format: logfmt
+  add_timestamp: true
+  timestamp_name: ts
