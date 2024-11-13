@@ -250,4 +250,43 @@ cat data.json.gz | zcat | python py_snowpark.py 10000
 * Great for when data has been processed using DataFrames.
 
 
+---
+
+## Redpanda Connect / Snowpipe Streaming
+
+The beauty of using Redpanda Connect to stream to Snoflake is that you don't even _need_ to land the messages in Redpanda; you don't even need a Redpanda cluster since Redpanda Connect (aka RPCN) can run standalone.  The premise here is that the data generator will send messages to an http server running on RPCN, and then those will use the `snowpipe_streaing` output to stream messages to Snowflake.
+
+### Database setup
+
+```sql
+USE ROLE INGEST;
+CREATE OR REPLACE TABLE lift_tickets_py_rpcn (TXID varchar(255), RFID varchar(255), RESORT varchar(255), PURCHASE_TIME datetime, EXPIRATION_TIME date, DAYS number, NAME varchar(255), ADDRESS variant, PHONE varchar(255), EMAIL varchar(255), EMERGENCY_CONTACT variant);
+```
+
+### Redpanda Connect setup
+
+You'll need redpanda connect version >= 4.39.0:
+
+```bash
+rpk connect --version
+```
+
+Which can be upgraded via 
+
+```bash
+rpk connect upgrade
+```
+
+Easiest thing to do is run RPCN in a separate terminal window:
+
+```bash
+rpk connect run http_snoflake.yaml
+```
+
+Any posts to `http://localhost:8888
+
+### Python usage
+
+
+
 
