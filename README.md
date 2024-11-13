@@ -267,6 +267,17 @@ CREATE OR REPLACE TABLE lift_tickets_py_rpcn (TXID varchar(255), RFID varchar(25
 
 You'll need redpanda connect version >= 4.39.0:
 
+Any posts to `http://localhost:8888/snow` will be recieved by the `http_server` input in the running Redpanda Connect pipeline.  
+
+#### Tips
+
+* the pipeline runs in a transactinoal nature, so input requests recieved will not return a response to the caller until the message is posted successfully to snowflake; the batching options in the output processor won't matter since the batch will time out before it fills up-- there will never be a 2nd message in the batch.   This is why we use an input buffer to "receive" the http requests and respond back to the caller prior to messages being sent to Snowflake.  The risk is that any messages that fail later in the pipeline will be lost.
+* Dates/times can be a bear to deal with.   You have 3 options.   Examples of all 3 are included in the python/yaml
+  * (1) Prepare your input data to adere to RFC3339 format
+  * (2) have your data be in unix time format
+  * (3) use bloblang to convert your input data to a timestamp
+ 
+
 ```bash
 rpk connect --version
 ```
@@ -283,10 +294,13 @@ Easiest thing to do is run RPCN in a separate terminal window:
 rpk connect run http_snoflake.yaml
 ```
 
-Any posts to `http://localhost:8888
+
 
 ### Python usage
 
+`python py_rpcn.py 1`
+
+Where the command line param is the number of records to be created/passed to RPCN.
 
 
 
