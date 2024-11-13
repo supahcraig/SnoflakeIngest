@@ -75,9 +75,10 @@ This just builds out insert statements and executes them one at time.   If the i
 
 ### Database setup
 
+```sql
 USE ROLE INGEST;
 CREATE OR REPLACE TABLE LIFT_TICKETS_PY_INSERT (TXID varchar(255), RFID varchar(255), RESORT varchar(255), PURCHASE_TIME datetime, EXPIRATION_TIME date, DAYS number, NAME varchar(255), ADDRESS variant, PHONE varchar(255), EMAIL varchar(255), EMERGENCY_CONTACT variant);
-
+```
 
 ### Python usage
 
